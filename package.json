@@ -1,0 +1,22 @@
+{
+  "name": "scraperimoveis",
+  "version": "1.0.0",
+  "description": "Scrape real state listings from Chaves na Mão site, and futurely Imoveisweb",
+  "keywords": [
+    "Scraper",
+    "Imoveis",
+    "Real",
+    "State"
+  ],
+  "license": "ISC",
+  "author": "oinventor",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "puppeteer": "^25.3.0",
+    "xlsx": "^0.18.5"
+  }
+}
