@@ -4,7 +4,7 @@ import { ListingScraper } from "./ListingScraper.js";
 import { SheetGenerator } from "./SheetMaker.js";
 
 // Testes
-const testUrl = "https://www.chavesnamao.com.br/casas-a-venda/sp-varzea-paulista/?filtro=tim:[25],amax:50";
+const testUrl = "https://www.chavesnamao.com.br/apartamentos-a-venda/sp-varzea-paulista/?filtro=amax:45";
 
 // configs
 const BROWSERCONFIGS = {
@@ -16,7 +16,7 @@ const SCRAPERCONFIGS = {
     scrollTimeout: 15
 }
 
-// Start the scraper
+// Start the scraper // Btw, is this first script a scraper or a crawler I wander ?|
 async function SearchScraper(url) {
 
     // Try catch for erros    
@@ -51,7 +51,7 @@ async function SearchScraper(url) {
         const contents = new Set();
 
         // While for guaranteeing that we are getting all the contents
-        while (contents.size < Number(h1Content.slice(0, 2))) {
+        while (contents.size < Number((h1Content.slice(0, 3)).trim()) && contents.size < 100) {
 
             // Use the evaluate method. In videos, they often say to use $$eval and $eval, which are two shortcuts for simple elements.
             // Basically, they do what you would do with evaluate. The difference is that with evaluate you can do more complex things,
@@ -69,7 +69,7 @@ async function SearchScraper(url) {
             // Add to the set the curent links that the scraper can see
             links.forEach(link => {
                 // This is to avoid overloading the set with more links then nescessary
-                if(contents.size < Number(h1Content.slice(0, 2))){
+                if(contents.size < Number((h1Content.slice(0, 3)).trim()) && contents.size < 100){
                     contents.add(link);
                 }
             });
@@ -80,7 +80,7 @@ async function SearchScraper(url) {
             // Awaits new promise with timeout of x seconds
             await new Promise((resolve) => setTimeout(resolve, SCRAPERCONFIGS.scrollTimeout));
         }
-
+        console.log(contents.size);
 
         // Using for here because it will respect the order of the logic. the foreach does not
         // respect the order of the logic, istead, it will do all at once.
