@@ -21,13 +21,13 @@ export async function ListingScraper(browser, link){
         bathrooms: null,
         parkingSpaces: null,
         suites: null,
-        balcony: false,
-        gourmetBalcony: false,
-        barbecue: false,
-        pool: false,
-        elevator: false,
-        hasCondominium: false,
-        corner: false,
+        balcony: 0,
+        gourmetBalcony: 0,
+        barbecue: 0,
+        pool: 0,
+        elevator: 0,
+        hasCondominium: 0,
+        corner: 0,
         city: null,
         neighborhood: null,
         street: null,
@@ -110,8 +110,9 @@ export async function ListingScraper(browser, link){
     // Has Condominium
     try {
 
-        listingObj.hasCondominium = await listingPage.$eval('span[class*="style_realtyType"]', (el) => ['Condomínio', 'Apartamento'].some(item => el.innerText.includes(item)));
-        // Sorry for the giant comand, but I`m to eppy do think something more elegant right now
+        listingObj.hasCondominium = Number(await listingPage.$eval('span[class*="style_realtyType"]', (el) => ['Condomínio', 'Apartamento'].some(item => el.innerText.includes(item))));
+        // Sorry for the giant comand, but I`m to eppy do think something more elegant right now 
+        // Got lazy and did a conversion :/ not realy optimal but wathever
     } catch (error) {
         
         console.log("Condominium not found");
@@ -212,33 +213,33 @@ export async function ListingScraper(browser, link){
             // Second, this if is to see if there are the "varanda" || "sacada" in the optional items area. if not in the optional
             // items area, it will searh in the description. (finally, the set up is paying back uhhul :) )
             // Third, why no initial letters? To avoid falling in to capital letters
-            listingObj.balcony = true
+            listingObj.balcony = 1
         } else if (/varanda/i.test(description) || /sacada/i.test(description)) {
             
-            listingObj.balcony = true
+            listingObj.balcony = 1
         }
 
         // Gourmet Balcony
         if (optionalItems.some((item) => item.includes('aranda gourmet')) || optionalItems.some((item) => item.includes('acada gourmet'))) {
 
-            listingObj.balcony = true
+            listingObj.balcony = 1
         } else if (/varanda gourmet/i.test(description) || /sacada gourmet/i.test(description)) {
             
-            listingObj.balcony = true
+            listingObj.balcony = 1
         }
 
         // Barbecue
-        listingObj.barbecue = optionalItems.some((item) => item.includes('hurras')) == true ? true : /churras/i.test(description);
+        listingObj.barbecue = optionalItems.some((item) => item.includes('hurras')) == true ? 1 : Number(/churras/i.test(description));
         // These other ones can be done with ternary ? to make it more stilish and elegant ;}
 
         // Pool
-        listingObj.pool = optionalItems.some((item) => item.includes('iscina')) == true ? true : /piscina/i.test(description);
+        listingObj.pool = optionalItems.some((item) => item.includes('iscina')) == true ? 1 : Number(/piscina/i.test(description));
 
         // Corner
-        listingObj.corner = optionalItems.some((item) => item.includes('squina')) == true ? true : /esquina/i.test(description);
+        listingObj.corner = optionalItems.some((item) => item.includes('squina')) == true ? 1 : Number(/esquina/i.test(description));
 
         // Elevator
-        listingObj.elevator = optionalItems.some((item) => item.includes('levador')) == true ? true : /elevador/i.test(description);
+        listingObj.elevator = optionalItems.some((item) => item.includes('levador')) == true ? 1 : Number(/elevador/i.test(description));
     } catch (error) {
         
         // In case the optionalItems gives error, this catch will only execute the description checs
@@ -246,26 +247,26 @@ export async function ListingScraper(browser, link){
         // Balcony
         if (/varanda/i.test(description) || /sacada/i.test(description)) {
             
-            listingObj.balcony = true
+            listingObj.balcony = 1
         }
 
         // Gourmet Balcony
         if (/varanda gourmet/i.test(description) || /sacada gourmet/i.test(description)) {
             
-            listingObj.balcony = true
+            listingObj.balcony = 1
         }
 
         // Barbecue
-        listingObj.barbecue = /churras/i.test(description);
+        listingObj.barbecue = Number(/churras/i.test(description));
 
         // Pool
-        listingObj.pool = /piscina/i.test(description);
+        listingObj.pool = Number(/piscina/i.test(description));
 
         // Corner
-        listingObj.corner = /esquina/i.test(description);
+        listingObj.corner = Number(/esquina/i.test(description));
 
         // Elevator
-        listingObj.elevator = /elevador/i.test(description);
+        listingObj.elevator = Number(/elevador/i.test(description));
     }
     // Address
     try {

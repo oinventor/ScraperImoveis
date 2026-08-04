@@ -1,3 +1,5 @@
+import { resolve } from "node:dns";
+
 // Exports the distance scraper
 export async function DistanceScraper(browser, address, city) {
 
@@ -35,6 +37,7 @@ export async function DistanceScraper(browser, address, city) {
             processedDistance = parseFloat(processedDistance);
 
             // Closes the page
+            await new Promise((resolve) => setTimeout(resolve, 3000));
             await mapsPage.close();
 
             // Garants that the distance is in km

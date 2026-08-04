@@ -4,20 +4,23 @@ import { ListingScraper } from "./ListingScraper.js";
 import { SheetGenerator } from "./SheetMaker.js";
 
 // Testes
-const testUrl = "https://www.chavesnamao.com.br/apartamentos-a-venda/sp-varzea-paulista/?filtro=amax:45";
+const testUrl = "https://www.chavesnamao.com.br/apartamentos-a-venda/sp-jundiai/parque-residencial-eloy-chaves/?filtro=or:6,amin:60,amax:100";
 
 // configs
 const BROWSERCONFIGS = {
 
     headless: false,
+    args: ['--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36']
 }
+// On configs, this args is to set the user agent, basicly it`s a fictional person for using the browser. This way, many sites
+// colaborate more with the scraper
 const SCRAPERCONFIGS = {
 
     scrollTimeout: 15
 }
 
 // Start the scraper // Btw, is this first script a scraper or a crawler I wander ?|
-async function SearchScraper(url) {
+export default async function SearchScraper(url) {
 
     // Try catch for erros    
     try {
@@ -51,7 +54,7 @@ async function SearchScraper(url) {
         const contents = new Set();
 
         // While for guaranteeing that we are getting all the contents
-        while (contents.size < Number((h1Content.slice(0, 3)).trim()) && contents.size < 100) {
+        while (contents.size < Number((h1Content.slice(0, 3)).replace(/\D/g, "").trim()) && contents.size < 100) {
 
             // Use the evaluate method. In videos, they often say to use $$eval and $eval, which are two shortcuts for simple elements.
             // Basically, they do what you would do with evaluate. The difference is that with evaluate you can do more complex things,
@@ -69,7 +72,7 @@ async function SearchScraper(url) {
             // Add to the set the curent links that the scraper can see
             links.forEach(link => {
                 // This is to avoid overloading the set with more links then nescessary
-                if(contents.size < Number((h1Content.slice(0, 3)).trim()) && contents.size < 100){
+                if(contents.size < Number((h1Content.slice(0, 3)).replace(/\D/g, "").trim()) && contents.size < 100){
                     contents.add(link);
                 }
             });
@@ -107,4 +110,4 @@ async function SearchScraper(url) {
     }
 }
 
-console.log((await SearchScraper(testUrl)));
+//console.log((await SearchScraper(testUrl)));

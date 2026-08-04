@@ -3,7 +3,7 @@ import xlsx from "xlsx";
 
 // Exports
 export async function SheetGenerator(objArr) {
-    console.log(objArr);
+
     // Creating new workbook with this
     const workbook = xlsx.utils.book_new();
 
