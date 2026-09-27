@@ -64,7 +64,7 @@ export async function ListingScraper(browser, link){
 
             // Clicks the submit button
             await listingPage.$eval('button[data-qa="send-softlogin-form"]', (submitInput) => submitInput.click());
-            await listingPage.waitForSelector('button[class*="phonesStyles-module__button-phone"]');
+            await listingPage.waitForSelector('button[class*="phonesStyles-module__button-phone"]', { timeout: 3000 });
             // "BUT ITS A INPUT ELEMENT, WHY NO DO THE CLICK SIMILARLY TO THE WAY YOU DID BEFOUR???"
             // I tried, but it did not work properly. For some reson the site hides the input by putting a label "colision" box
             // o top of the submit input. This couses puppeteer to no be abble to "see" the submit button.
