@@ -1,6 +1,6 @@
 // Imports
 import { Target } from "puppeteer";
-import { DistanceScraper } from "../Utils/DistanceScraper.js";
+import { DistanceScraper } from "./DistanceScraper.js";
 
 // Exports the listing scraper
 export async function ListingScraper(browser, link){

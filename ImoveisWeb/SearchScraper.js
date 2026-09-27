@@ -1,7 +1,7 @@
 // Imports
 import puppeteer from "puppeteer";
 import { ListingScraper } from "./ListingScraper.js";
-import { SheetGenerator } from "../Utils/SheetMaker.js";
+import { SheetGenerator } from "./SheetMaker.js";
 
 // Testes
 const testUrl = "https://www.chavesnamao.com.br/apartamentos-a-venda/sp-jundiai/parque-residencial-eloy-chaves/?filtro=or:6,amin:60,amax:100";

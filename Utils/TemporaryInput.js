@@ -4,7 +4,7 @@
 import { link } from "node:fs";
 import { stdin } from "node:process";
 import readline from "node:readline";
-import SearchScraper from "./SearchScraper.js";
+import SearchScraper from "../ChavesNaMao/SearchScraper.js";
 
 // Code
 
