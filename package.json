@@ -18,6 +18,8 @@
   "dependencies": {
     "pkg": "^5.8.1",
     "puppeteer": "^25.3.0",
+    "puppeteer-extra": "^3.3.6",
+    "puppeteer-extra-plugin-stealth": "^2.11.2",
     "xlsx": "^0.18.5"
   }
 }

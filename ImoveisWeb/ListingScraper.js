@@ -1,6 +1,5 @@
 // Imports
-import { Target } from "puppeteer";
-import { DistanceScraper } from "./DistanceScraper.js";
+import { DistanceScraper } from "../Utils/DistanceScraper.js";
 
 // Exports the listing scraper
 export async function ListingScraper(browser, link){
@@ -38,20 +37,20 @@ export async function ListingScraper(browser, link){
     try {
 
         // Awaits for the phone button, then cliks it
-        await listingPage.waitForSelector('#openTel', { timeout: 5000 });
-        await listingPage.$eval('#openTel', (button) => button.click());
+        await listingPage.waitForSelector('#getPublisherData', { timeout: 5000 });
+        await listingPage.$eval('#getPublisherData', (button) => button.click());
 
         // This trycatch is for the case that the forms does not appear and goes direcly to the contact pop up
         try {
 
             // Awaits for the phones name input to appear, just in case :)
-            await listingPage.waitForSelector('#phones-name-input', { timeout: 1000 });
+            await listingPage.waitForSelector('#input-emailInput', { timeout: 1000 });
             
             // Sets the variables for the input. Theoretically you can use a single variable and then go putting the inputs
             // But it gets confusing realy fast and, I think it`s just better to do it in blocks
-            const nameInput = await listingPage.$('#phones-name-input');
-            const emailInput = await listingPage.$('#phones-email-input');
-            const phoneInput = await listingPage.$('#phones-phone-input');
+            const nameInput = await listingPage.$('#input-nameInput');
+            const emailInput = await listingPage.$('#input-emailInput');
+            const phoneInput = await listingPage.$('#input-phoneInput');
             // See this $? It`s similar to the $eval, the diferance is that the $ canot execute a callback and it will return
             // a ElementHandler. In resume, it shoud be used to execute "fisical" actions, like typing and clicking. It`s 
             // specialy useful for inputs!
@@ -64,7 +63,8 @@ export async function ListingScraper(browser, link){
             // This delay will make the typing action slower the more delay. Puting none will make super fast =D 
 
             // Clicks the submit button
-            await listingPage.$eval('#submit-phones-form', (submitInput) => submitInput.click());
+            await listingPage.$eval('button[data-qa="send-softlogin-form"]', (submitInput) => submitInput.click());
+            await listingPage.waitForSelector('button[class*="phonesStyles-module__button-phone"]');
             // "BUT ITS A INPUT ELEMENT, WHY NO DO THE CLICK SIMILARLY TO THE WAY YOU DID BEFOUR???"
             // I tried, but it did not work properly. For some reson the site hides the input by putting a label "colision" box
             // o top of the submit input. This couses puppeteer to no be abble to "see" the submit button.
@@ -90,7 +90,7 @@ export async function ListingScraper(browser, link){
     // Advertiser
     try {
         // "el" is for element btw :)
-        listingObj.advertiser = await listingPage.$eval('a[class*="publisherTitle"] h2 b', (el) => el.innerText.trim());
+        listingObj.advertiser = await listingPage.$eval('h3[data-qa="linkMicrositioAnunciante"]', (el) => el.innerText.trim());
         // Setting up the advertiser`s name so then, when making the xsls planilha, it will be easyer
         listingObj.advertiser = { v: listingObj.advertiser, l: { Target: link } };
     } catch (error) {
@@ -101,7 +101,7 @@ export async function ListingScraper(browser, link){
     // Total Price
     try {
 
-        listingObj.totalPrice = await listingPage.$eval('span[class^="style_clamp"]', (el) => Number((el.innerText.trim()).replace(/\D/g, '')));
+        listingObj.totalPrice = await listingPage.$eval('.price-value > span > span', (el) => Number((el.innerText.trim()).replace(/\D/g, '')));
     } catch (error) {
         
         console.log("Total price not found");
@@ -110,7 +110,7 @@ export async function ListingScraper(browser, link){
     // Has Condominium
     try {
 
-        listingObj.hasCondominium = Number(await listingPage.$eval('span[class*="style_realtyType"]', (el) => ['Condomínio', 'Apartamento'].some(item => el.innerText.includes(item))));
+        listingObj.hasCondominium = Number(await listingPage.$eval('.price-expenses', (el) => ['Condomínio', 'Apartamento'].some(item => el.innerText.includes(item))));
         // Sorry for the giant comand, but I`m to eppy do think something more elegant right now 
         // Got lazy and did a conversion :/ not realy optimal but wathever
     } catch (error) {
@@ -122,7 +122,7 @@ export async function ListingScraper(browser, link){
     try {
 
         // There is no description on the listenig obj, but its important for certain furture searches
-        description = await listingPage.$eval('p[aria-label="descrição"]', (el) => el.innerText.trim());
+        description = await listingPage.$eval('div[class*="description-module__wrapper-description"]', (el) => el.innerText.trim());
     } catch (error) {
         
         console.log("Description not found");
@@ -132,7 +132,7 @@ export async function ListingScraper(browser, link){
     try {
 
         // Finilly the payback fot doing all the celphone comands
-        listingObj.phoneNumber = await listingPage.$eval('a[href*="api.whatsapp.com"] b', (el) => el.innerText.trim());
+        listingObj.phoneNumber = await listingPage.$eval('button[class*="phonesStyles-module__button-phone"]', (el) => el.innerText.trim());
     } catch (error) {
 
         // If he does not find the whatsapp number, he will get the telephone number
@@ -149,7 +149,7 @@ export async function ListingScraper(browser, link){
     // Total Area
     try {
 
-        listingObj.totalArea = await listingPage.$eval('p[aria-label="area-total"] b', (el) => Number((el.innerText.trim()).replace(/\D/g, '')));
+        listingObj.totalArea = await listingPage.$eval('i.icon-stotal', (el) => Number((el.parentElement.innerText.trim()).replace(/\D/g, '')));
     } catch (error) {
         
         // In here, just a null will do
@@ -158,7 +158,7 @@ export async function ListingScraper(browser, link){
     // Usable Area
     try {
 
-        listingObj.usableArea = await listingPage.$eval('p[aria-label="area-util"] b', (el) => Number((el.innerText.trim()).replace(/\D/g, '')));
+        listingObj.usableArea = await listingPage.$eval('i.icon-scubierta', (el) => Number((el.parentElement.innerText.trim()).replace(/\D/g, '')));
     } catch (error) {
         
         listingObj.usableArea = null;
@@ -166,7 +166,7 @@ export async function ListingScraper(browser, link){
     // Bedrooms
     try {
 
-        listingObj.bedrooms = await listingPage.$eval('p[aria-label="Quartos"] b', (el) => Number((el.innerText.trim()).replace(/\D/g, '')));
+        listingObj.bedrooms = await listingPage.$eval('i.icon-dormitorio', (el) => Number((el.parentElement.innerText.trim()).replace(/\D/g, '')));
     } catch (error) {
         
         // In here, there is no need to console log the error, if badroom found, than none exist :)
@@ -175,7 +175,7 @@ export async function ListingScraper(browser, link){
     // Bathrooms
     try {
 
-        listingObj.bathrooms = await listingPage.$eval('p[aria-label="Banheiros"] b', (el) => Number((el.innerText.trim()).replace(/\D/g, '')));
+        listingObj.bathrooms = await listingPage.$eval('i.icon-bano', (el) => Number((el.parentElement.innerText.trim()).replace(/\D/g, '')));
     } catch (error) {
         
         listingObj.bathrooms = 0;
@@ -183,7 +183,7 @@ export async function ListingScraper(browser, link){
     // Parking Spaces
     try {
 
-        listingObj.parkingSpaces = await listingPage.$eval('p[aria-label="Garagens"] b', (el) => Number((el.innerText.trim()).replace(/\D/g, '')));
+        listingObj.parkingSpaces = await listingPage.$eval('i.icon-cochera', (el) => Number((el.parentElement.innerText.trim()).replace(/\D/g, '')));
     } catch (error) {
         
         listingObj.parkingSpaces = 0;
@@ -191,7 +191,7 @@ export async function ListingScraper(browser, link){
     // Suits
     try {
 
-        listingObj.suites = await listingPage.$eval('p[aria-label="Suites"] b', (el) => Number((el.innerText.trim()).replace(/\D/g, '')));
+        listingObj.suites = await listingPage.$eval('i.icon-toilete', (el) => Number((el.parentElement.innerText.trim()).replace(/\D/g, '')));
     } catch (error) {
         
         listingObj.suites = 0;
@@ -202,7 +202,7 @@ export async function ListingScraper(browser, link){
         // Decided to put all three in one single trycatch. That`s because, defdrentlly from the others, this three 
         // are all on the same places, so there is no worth in doing them in separeted try catches.
         // That being said, bare with me cause this is going to be a tricky one. 
-        const optionalItems = await listingPage.$$eval('div[class*="optionalItemsContainer"] ul li', (el) => el.map((item) => item.innerText.trim()));
+        const optionalItems = await listingPage.$$eval('span[class*="generalFeaturesProperty-module__description-text"]', (el) => el.map((item) => item.innerText.trim()));
         // This ginomous thing is a $$eval. In short, $eval that returns a array of elements. Then, 9 times out of
         // 10 a map method will be used to execute a callback on each of the element of the array
 
@@ -272,7 +272,7 @@ export async function ListingScraper(browser, link){
     try {
         
         // Just like the previos one, this one isn`t realy worth to make a saparete one for each, so here we go!
-        let address = await listingPage.$eval('h2[class*="text-title-lg"]', (el) => el.innerText.trim());
+        let address = await listingPage.$eval('div.section-location-property h4', (el) => el.innerText.trim());
         // Setting the full address from the listening
 
         // Seting the coma separator for the first time (so we can saparate city from the rest)

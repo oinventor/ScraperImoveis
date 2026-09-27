@@ -1,10 +1,11 @@
 // Imports
-import puppeteer from "puppeteer";
+import puppeteer from "puppeteer-extra";
+import StealthPlugin from "puppeteer-extra-plugin-stealth";
 import { ListingScraper } from "./ListingScraper.js";
-import { SheetGenerator } from "./SheetMaker.js";
+import { SheetGenerator } from "../Utils/SheetMaker.js";
 
 // Testes
-const testUrl = "https://www.chavesnamao.com.br/apartamentos-a-venda/sp-jundiai/parque-residencial-eloy-chaves/?filtro=or:6,amin:60,amax:100";
+const testUrl = "https://www.imovelweb.com.br/apartamentos-venda-serra-negra-sp-30-90-m2.html?utm_source=google&utm_medium=cpc&utm_campaign=Search_BrandTerms&utm_content=Brand_Term&utm_term=imovelweb&iv_=__iv_p_1_a_14183648872_g_131270747251_w_kwd-17894427_h_1031531_ii__d_c_v__n_g_c_537751034622_k_imovelweb_m_b_l__t__e__r__vi__&gad_source=1";
 
 // configs
 const BROWSERCONFIGS = {
@@ -18,6 +19,8 @@ const SCRAPERCONFIGS = {
 
     scrollTimeout: 15
 }
+// Stealth
+puppeteer.use(StealthPlugin());
 
 // Start the scraper // Btw, is this first script a scraper or a crawler I wander ?|
 export default async function SearchScraper(url) {
@@ -62,11 +65,12 @@ export default async function SearchScraper(url) {
 
             // Now, explaining what eval does, as if you were opening the inspector and using it to navigate the site.
             // This gives you a lot more control :>
+            await searchPage.$eval('.postingsList-module__card-container', (result) => {console.log(result); result.click()});
             const links = await searchPage.evaluate(() => {
                 // Get the real estate listings cards of the site
-                const cards = Array.from(document.querySelectorAll('div[id^="rc-"]'));
+                const cards = Array.from(document.querySelectorAll('.postingsList-module__card-container'));
                 // Return the links of the real estate listings and ads they to links
-                return Array.from(cards).map(card => (card.querySelector('a.link_rawLink__Tabnf')).getAttribute('href'));
+                return Array.from(cards).map(card => (card.querySelector('div[class*="postingCardLayout-module__posting-card-layout"]')).getAttribute('data-to-posting'));
             });
 
             // Add to the set the curent links that the scraper can see
@@ -76,12 +80,14 @@ export default async function SearchScraper(url) {
                     contents.add(link);
                 }
             });
+            // ^ We wold not actualy need all of this, just a simple stuff would sufice. But to lazy to change now :| 
 
-            // Using the evaluate method here to scroll to the end of the visible page
-            await searchPage.evaluate(() => window.scrollBy(0, window.innerHeight));
-
-            // Awaits new promise with timeout of x seconds
-            await new Promise((resolve) => setTimeout(resolve, SCRAPERCONFIGS.scrollTimeout));
+            // Tries to click the next page button
+            try {
+                await searchPage.$eval('.paging-module__page-arrow', (button) => button.click());
+            } catch (error) {
+                console.log("butao de + nao encontrado");
+            }
         }
         console.log(contents.size);
 
@@ -94,7 +100,7 @@ export default async function SearchScraper(url) {
         // Runs the MiddleWatersSacraper and adds the result (the objct of the listening)
         // to the array of objects
         for(const link of contents){
-            listeningArr.push(await ListingScraper(browser, `https://www.chavesnamao.com.br${link}`));
+            listeningArr.push(await ListingScraper(browser, `https://www.imovelweb.com.br${link}`));
         }
 
         // Close browser

@@ -1,10 +1,9 @@
 // This script is just a temporary way to allow inputs from someone. A front will be done :} (one thay).
 
 // Imports
-import { link } from "node:fs";
-import { stdin } from "node:process";
 import readline from "node:readline";
-import SearchScraper from "../ChavesNaMao/SearchScraper.js";
+import SearchScraperC from "../ChavesNaMao/SearchScraper.js";
+import SearchScraperI from "../ImoveisWeb/SearchScraper.js";
 
 // Code
 
@@ -15,10 +14,10 @@ const rl = readline.createInterface({
 });
 
 // Opens a question
-rl.question('Cole aqui o link de pesquisa do chaves na mão: ', async (link) => {
+rl.question('Cole aqui o link de pesquisa (chaves na mao ou imoveisweb): ', async (link) => {
 
     // Start the scraper passing the link
-    await SearchScraper(link);
+    link.includes('chavesnamao') ? await SearchScraperC(link) : await SearchScraperI(link);
 
     // Close the question
     await rl.close();

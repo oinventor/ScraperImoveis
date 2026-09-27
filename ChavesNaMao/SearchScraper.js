@@ -1,5 +1,6 @@
 // Imports
-import puppeteer from "puppeteer";
+import puppeteer from "puppeteer-extra";
+import StealthPlugin from "puppeteer-extra-plugin-stealth";
 import { ListingScraper } from "./ListingScraper.js";
 import { SheetGenerator } from "../Utils/SheetMaker.js";
 
@@ -18,6 +19,7 @@ const SCRAPERCONFIGS = {
 
     scrollTimeout: 15
 }
+puppeteer.use(StealthPlugin());
 
 // Start the scraper // Btw, is this first script a scraper or a crawler I wander ?|
 export default async function SearchScraper(url) {
