@@ -54,7 +54,9 @@ export default async function SearchScraper(url) {
 
        // Initiate the contents Set
         const contents = new Set();
-
+        await searchPage.$eval(".additional-content", async(btnDiv) => {
+            btnDiv.querySelector("button").click();
+        });
         // While for guaranteeing that we are getting all the contents
         while (contents.size < Number((h1Content.slice(0, 3)).replace(/\D/g, "").trim()) && contents.size < 100) {
 
